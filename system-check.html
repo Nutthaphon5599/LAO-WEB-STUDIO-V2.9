@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="lo">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>System Check · Lao Web Studio V2.9.0</title>
+  <link rel="stylesheet" href="styles.css?v=2.9.0">
+  <style>
+    body{background:#f4f7fb;color:#102442}
+    .check-shell{width:min(820px,92%);margin:50px auto}
+    .check-card{background:#fff;border:1px solid #dce5ef;border-radius:22px;
+      padding:24px;box-shadow:0 16px 45px #17345218}
+    .check-row{display:grid;grid-template-columns:220px 1fr;gap:12px;
+      padding:13px 0;border-bottom:1px solid #e8edf3}
+    .check-row:last-child{border-bottom:0}
+    .ok{color:#067647}.bad{color:#b42318}.muted{opacity:.7}
+    code{word-break:break-all}
+    @media(max-width:650px){.check-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="check-shell">
+    <section class="check-card">
+      <h1>Lao Web Studio V2.9.0</h1>
+      <p>Supabase connection and installation check</p>
+      <div id="check-results"><p>Checking…</p></div>
+      <p><a href="index.html">← Back to website</a></p>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=2.9.0"></script>
+  <script src="supabase-client.js?v=2.9.0"></script>
+  <script>
+    (async()=>{
+      const root=document.getElementById('check-results');
+      const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
+      }[c]));
+      const result=await window.lwsSupabaseHealthCheck();
+      const rows=[
+        ['Website version','2.9.0',true],
+        ['Supabase configured',String(window.LWS_SUPABASE_CONFIGURED),
+          window.LWS_SUPABASE_CONFIGURED],
+        ['Project reference',window.LWS_SUPABASE_PROJECT_REF||'—',
+          Boolean(window.LWS_SUPABASE_PROJECT_REF)],
+        ['Database health',result.ok?'Connected':'Not ready',result.ok],
+        ['Database version',result.data?.version||'—',
+          result.data?.version==='2.9.0'],
+        ['Lead RPC',String(result.data?.lead_rpc??false),
+          result.data?.lead_rpc===true],
+        ['Error',result.error||'None',!result.error]
+      ];
+      root.innerHTML=rows.map(([a,b,ok])=>`
+        <div class="check-row">
+          <b>${esc(a)}</b>
+          <code class="${ok?'ok':'bad'}">${esc(b)}</code>
+        </div>`).join('');
+    })();
+  </script>
+</body>
+</html>
